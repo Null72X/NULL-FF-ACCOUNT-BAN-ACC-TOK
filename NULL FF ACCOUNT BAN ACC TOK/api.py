@@ -393,45 +393,22 @@ def process_ban(access_token):
 
 @app.route('/')
 def home():
-    return jsonify({
-        "success": True,
-        "name": "NullBan API",
-        "version": "1.0.0",
-        "status": "online",
-        "message": "API is running successfully.",
-        "documentation": {
-            "endpoint": "/ban",
-            "parameter": "access_token",
-            "example": "https://nullban.vercel.app/ban?access_token={token}"
-        }
-    }), 200
-
-
-@app.route('/')
-def home():
-    return jsonify({
-        "message": "NullBan API is running.",
-        "usage": "https://nullban.vercel.app/ban?access_token={token}"
-    })
+    return jsonify({"message": "API is running. Use :  https://nullban.vercel.app/ban?access_token={token}"})
 
 @app.route('/ban')
 def ban():
     access_token = request.args.get('access_token')
-
+    
     if not access_token:
-        return jsonify({
-            "success": False,
-            "message": "Access token is required.",
-            "usage": "https://nullban.vercel.app/ban?access_token={token}"
-        })
-
+        return jsonify({"success": False, "message": "Access token is required"})
+    
     success, result = process_ban(access_token)
-
+    
     return jsonify({
         "success": success,
         "message": result
     })
-    
+
 def handler(event, context):
     from flask import request as flask_request
     import importlib

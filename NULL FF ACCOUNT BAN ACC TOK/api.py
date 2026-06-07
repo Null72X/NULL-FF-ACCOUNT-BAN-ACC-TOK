@@ -393,28 +393,52 @@ def process_ban(access_token):
 
 @app.route('/')
 def home():
-    return jsonify({"message": "API is running. Use /ban?access_token={your_token}"})
+    return jsonify({
+        "success": True,
+        "name": "NullBan API",
+        "version": "1.0.0",
+        "status": "online",
+        "message": "API is running successfully.",
+        "documentation": {
+            "endpoint": "/ban",
+            "parameter": "access_token",
+            "example": "https://nullban.vercel.app/ban?access_token={token}"
+        }
+    }), 200
 
-@app.route('/ban')
+
+@app.route('/ban', methods=['GET'])
 def ban():
     access_token = request.args.get('access_token')
-    
-    if not access_token:
-        return jsonify({"success": False, "message": "Access token is required"})
-    
-    success, result = process_ban(access_token)
-    
-    return jsonify({
-        "success": success,
-        "message": result
-    })
 
-# Vercel کے لیے handler
+    if not access_token:
+        return jsonify({
+            "success": False,
+            "error": "MissingParameter",
+            "message": "Access token is required.",
+            "example": "https://nullban.vercel.app/ban?access_token={token}"
+        }), 400
+
+    try:
+        success, result = process_ban(access_token)
+
+        return jsonify({
+            "success": success,
+            "message": result,
+            "api": "https://nullban.vercel.app/ban?access_token={token}"
+        }), 200 if success else 500
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": "InternalServerError",
+            "message": str(e)
+        }), 500
+    
 def handler(event, context):
     from flask import request as flask_request
     import importlib
     
-    # Flask app کو WSGI کے ذریعے run کرنے کے لیے
     from mangum import Mangum
     return Mangum(app)(event, context)
 
